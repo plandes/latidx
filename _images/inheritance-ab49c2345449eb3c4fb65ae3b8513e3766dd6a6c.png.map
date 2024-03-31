@@ -1,0 +1,12 @@
+<map id="inheritanced2537e77b7" name="inheritanced2537e77b7">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="119,5,191,36"/>
+<area shape="rect" id="node3" title="All subclasses have the ability to deallocate any resources. &#160;This is" alt="" coords="158,84,289,115"/>
+<area shape="rect" id="node5" title="An interface for classes that have multi&#45;line debuging capability." alt="" coords="38,84,126,115"/>
+<area shape="rect" id="node2" title="Base exception from which almost all library raised errors extend." alt="" coords="558,5,649,36"/>
+<area shape="rect" id="node6" href="#zensols.latidx.domain.LatidxError" target="_top" title="Thrown for any application level error." alt="" coords="548,84,659,115"/>
+<area shape="rect" id="node8" title="Classes can extend this that want to persist :class:`.PersistedWork`" alt="" coords="143,163,333,193"/>
+<area shape="rect" id="node4" title="A class that that generates a dictionary recursively from data classes" alt="" coords="32,163,119,193"/>
+<area shape="rect" id="node7" href="#zensols.latidx.domain.NewCommand" target="_top" title="A parsed macro definition using ``{provide,new,renew}command``." alt="" coords="5,241,148,272"/>
+<area shape="rect" id="node10" href="#zensols.latidx.domain.UsePackage" target="_top" title="A parsed use of a Latex ``usepackage{&lt;name&gt;}``." alt="" coords="175,241,299,272"/>
+<area shape="rect" id="node9" href="#zensols.latidx.domain.ParseError" target="_top" title="Raised for Latex file parsing errors." alt="" coords="549,163,658,193"/>
+</map>

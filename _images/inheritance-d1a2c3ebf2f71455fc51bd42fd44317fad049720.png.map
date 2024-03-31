@@ -1,0 +1,12 @@
+<map id="inheritance55a0d02369" name="inheritance55a0d02369">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="386,5,458,36"/>
+<area shape="rect" id="node2" title="All subclasses have the ability to deallocate any resources. &#160;This is" alt="" coords="357,84,487,115"/>
+<area shape="rect" id="node4" title="An interface for classes that have multi&#45;line debuging capability." alt="" coords="230,84,318,115"/>
+<area shape="rect" id="node10" title="Any subclass that has the ability (and need) to do preprocessing. &#160;For" alt="" coords="541,163,645,193"/>
+<area shape="rect" id="node7" title="Classes can extend this that want to persist :class:`.PersistedWork`" alt="" coords="327,163,517,193"/>
+<area shape="rect" id="node3" title="A class that that generates a dictionary recursively from data classes" alt="" coords="216,163,303,193"/>
+<area shape="rect" id="node5" href="#zensols.latidx.index.LatexDependency" target="_top" title="An import relationship given by Latex ``usepackage``." alt="" coords="5,241,172,272"/>
+<area shape="rect" id="node6" href="#zensols.latidx.index.LatexFile" target="_top" title="A Latex file (``.tex``, ``.sty``, etc) with parsed artifacts." alt="" coords="347,241,441,272"/>
+<area shape="rect" id="node8" href="#zensols.latidx.index.LatexIndexer" target="_top" title="Indexes and parses Latex files. &#160;Candidate files refer to files we" alt="" coords="196,241,323,272"/>
+<area shape="rect" id="node9" href="#zensols.latidx.index.LatexProject" target="_top" title="A collection of dependencies of a set of files used in a LaTeX" alt="" coords="466,241,589,272"/>
+</map>
