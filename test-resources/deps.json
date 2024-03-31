@@ -1,0 +1,61 @@
+{
+    "targets": {
+        "root.tex": {
+            "source": {
+                "path": "test-resources/proj/root.tex",
+                "newcommands": {
+                    "rootcmd": {
+                        "char_offset": 90,
+                        "arg_spec": "[1]",
+                        "body": "{Root command: #1}",
+                        "name": "rootcmd"
+                    }
+                },
+                "usepackages": {
+                    "child": {
+                        "char_offset": 16,
+                        "name": "child"
+                    },
+                    "orphan": {
+                        "char_offset": 46,
+                        "name": "orphan"
+                    }
+                }
+            },
+            "targets": {
+                "child.sty": {
+                    "source": {
+                        "path": "test-resources/proj/child.sty",
+                        "newcommands": {
+                            "childcmd": {
+                                "char_offset": 26,
+                                "arg_spec": "[2]",
+                                "body": "{Child command: #1 and #2}",
+                                "name": "childcmd"
+                            }
+                        },
+                        "usepackages": {}
+                    },
+                    "targets": {}
+                },
+                "orphan.sty": null
+            }
+        },
+        "child.sty": {
+            "source": {
+                "path": "test-resources/proj/child.sty",
+                "newcommands": {
+                    "childcmd": {
+                        "char_offset": 26,
+                        "arg_spec": "[2]",
+                        "body": "{Child command: #1 and #2}",
+                        "name": "childcmd"
+                    }
+                },
+                "usepackages": {}
+            },
+            "targets": {}
+        }
+    },
+    "source": "root"
+}

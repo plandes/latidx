@@ -1,0 +1,7 @@
+# @meta {desc: 'Latex indexing application config', date: '2024-03-25'}
+
+ltx_indexer:
+  class_name: zensols.latidx.index.LatexIndexer
+  #path: zenbuild/src/sty/zenfig.sty
+  candidate_extensions: 'set: tex, sty, cls'
+  recurse_dirs: false

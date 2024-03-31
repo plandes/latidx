@@ -1,0 +1,3 @@
+asciitree~=0.3.3
+pylatexenc~=2.10
+zensols.util~=1.14.0
