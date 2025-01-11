@@ -125,3 +125,22 @@ class Application(object):
             print(yaml.dump(files_by_name()))
         if output_format == _Format.list:
             print('\n'.join(map(lambda f: str(f.path), proj.files)))
+
+
+@dataclass
+class PrototypeApplication(object):
+    CLI_META = {'is_usage_visible': False}
+
+    app: Application = field()
+
+    def proto(self):
+        """Prototype test."""
+        from . import NewCommand, LatexFile, LatexProject, LatexIndexer
+        indexer: LatexIndexer = self.app.indexer
+        proj: LatexProject = indexer.create_project(
+            (Path('test-resources/proj'),))
+        latfile: LatexFile
+        for latfile in proj.files_by_name.values():
+            cmd: NewCommand
+            for cmd in latfile.newcommands.values():
+                print(f'{repr(cmd)} in {latfile}')
