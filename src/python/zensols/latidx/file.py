@@ -210,6 +210,8 @@ class NewCommandLocation(LatexSpannedObject):
     """A pairing of commands and the files they live in.
 
     """
+    _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {}
+
     command: NewCommand = field()
     """The command foiund in :obj:`file`."""
 

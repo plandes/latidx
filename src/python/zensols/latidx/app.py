@@ -189,7 +189,7 @@ class PrototypeApplication(object):
         print(latfile.content)
         cmd.write()
 
-    def proto(self, run: int = 1):
+    def proto(self, run: int = 2):
         """Prototype test."""
         {0: self._test_iterate_proj,
          1: self._test_command,
