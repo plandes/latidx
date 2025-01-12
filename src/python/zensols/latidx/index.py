@@ -120,10 +120,6 @@ class LatexFile(LatexObject):
                 nix += 1
             return nix, cnodes
 
-        def post_create(nc: NewCommand):
-            span: Tuple[int, int] = nc.span
-            nc.definition = self.content[span[0]:span[1]]
-
         nlen: int = len(nodes)
         nn: LatexNode = nodes[nix + 1]
         if 0:
@@ -142,15 +138,8 @@ class LatexFile(LatexObject):
             if not isinstance(bn, LatexGroupNode):
                 bn = None
             nc = NewCommand(nn, mn, cnodes, bn, None)
-            post_create(nc)
-            return nc
-        elif False and isinstance(nn, LatexMacroNode):  # later if needed
-            # newcommand that use more traditional TeX syntax
-            bn: LatexNode = nodes[nix + 2]
-            if not isinstance(bn, LatexGroupNode):
-                bn = None
-            nc = NewCommand(nn, nn, (), bn, None)
-            post_create(nc)
+            span: Tuple[int, int] = nc.span
+            nc.definition = self.content[span[0]:span[1]]
             return nc
         else:
             # strange syntax commands are in the minority
