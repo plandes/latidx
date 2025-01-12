@@ -78,7 +78,7 @@ class NewCommand(LatexObject):
 
     """
     _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {
-        'name', 'char_offset', 'arg_spec', 'body'}
+        'name', 'char_offset', 'arg_spec', 'body', 'text'}
 
     macro_node: LatexMacroNode = field(repr=False)
     """The node containing the macro."""

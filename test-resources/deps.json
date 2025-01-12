@@ -1,24 +1,26 @@
 {
+    "source": "root",
     "targets": {
         "root.tex": {
             "source": {
                 "path": "test-resources/proj/root.tex",
                 "newcommands": {
                     "rootcmd": {
-                        "char_offset": 90,
-                        "arg_spec": "[1]",
                         "body": "{Root command: #1}",
-                        "name": "rootcmd"
+                        "name": "rootcmd",
+                        "text": "\\rootcmd[1]{Root command: #1}",
+                        "arg_spec": "[1]",
+                        "char_offset": 90
                     }
                 },
                 "usepackages": {
                     "child": {
-                        "char_offset": 16,
-                        "name": "child"
+                        "name": "child",
+                        "char_offset": 16
                     },
                     "orphan": {
-                        "char_offset": 46,
-                        "name": "orphan"
+                        "name": "orphan",
+                        "char_offset": 46
                     }
                 }
             },
@@ -28,10 +30,11 @@
                         "path": "test-resources/proj/child.sty",
                         "newcommands": {
                             "childcmd": {
-                                "char_offset": 26,
-                                "arg_spec": "[2]",
                                 "body": "{Child command: #1 and #2}",
-                                "name": "childcmd"
+                                "name": "childcmd",
+                                "text": "\\childcmd[2]{Child command: #1 and #2}",
+                                "arg_spec": "[2]",
+                                "char_offset": 26
                             }
                         },
                         "usepackages": {}
@@ -46,16 +49,16 @@
                 "path": "test-resources/proj/child.sty",
                 "newcommands": {
                     "childcmd": {
-                        "char_offset": 26,
-                        "arg_spec": "[2]",
                         "body": "{Child command: #1 and #2}",
-                        "name": "childcmd"
+                        "name": "childcmd",
+                        "text": "\\childcmd[2]{Child command: #1 and #2}",
+                        "arg_spec": "[2]",
+                        "char_offset": 26
                     }
                 },
                 "usepackages": {}
             },
             "targets": {}
         }
-    },
-    "source": "root"
+    }
 }
