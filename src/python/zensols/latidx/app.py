@@ -144,7 +144,7 @@ class Application(object):
         def commands_by_name():
             dct = proj.asflatdict()['command_locations_by_name']
             for cmd in dct.values():
-                cmd['latex_file'] = cmd['latex_file']['path']
+                cmd['file'] = cmd['file']['path']
             return dct
 
         self._set_level(logging.WARNING)
@@ -186,10 +186,14 @@ class PrototypeApplication(object):
             (Path('test-resources/proj'),))
         latfile: LatexFile = proj.files_by_name['root.tex']
         cmd: NewCommand = latfile.newcommands['rootcmd']
-        print(cmd.text)
+        cmd.write()
 
-    def proto(self):
+    def proto(self, run: int = 3):
         """Prototype test."""
-        #self._test_iterate_proj()
-        #self._test_command()
-        self.app.dump_commands(Path('test-resources/proj'), _Format.yml)
+        {0: self._test_iterate_proj,
+         1: self._test_command,
+         2: lambda: self.app.dump_files(
+             Path('test-resources/proj'), _Format.json),
+         3: lambda: self.app.dump_commands(
+             Path('test-resources/proj'), _Format.json),
+         }[run]()

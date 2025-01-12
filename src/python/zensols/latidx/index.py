@@ -20,7 +20,7 @@ from pylatexenc.latexwalker import (
 )
 from pylatexenc.macrospec import LatexContextDb
 from zensols.config import Dictable
-from zensols.persist import PersistableContainer, persisted, Primeable
+from zensols.persist import persisted, Primeable
 from zensols.util import Failure
 from . import LatidxError, LatexObject, ParseError, UsePackage, NewCommand
 
@@ -33,7 +33,8 @@ class LatexFile(LatexObject):
 
     """
     _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {'usepackages', 'newcommands'}
-    _PERSITABLE_PROPERTIES: ClassVar[Set[str]] = {'content', 'packages'}
+    _PERSITABLE_PROPERTIES: ClassVar[Set[str]] = {'content'}
+    _PERSITABLE_METHODS: ClassVar[Set[str]] = {'_get_package_objects'}
 
     path: Path = field()
     """The parsed latex ``.tex`` or ``.sty`` file."""
@@ -119,31 +120,47 @@ class LatexFile(LatexObject):
                 nix += 1
             return nix, cnodes
 
+        def post_create(nc: NewCommand):
+            span: Tuple[int, int] = nc.span
+            nc.definition = self.content[span[0]:span[1]]
+
         nlen: int = len(nodes)
         nn: LatexNode = nodes[nix + 1]
+        if 0:
+            for x in nodes:
+                print(x)
+            print('_' * 40)
         if isinstance(nn, LatexGroupNode):
             # most cases start with a group node that has the macro in the first
-            # of the arglist
+            # of the arglist; only comments are supported for these nodes
             mn: LatexMacroNode = get_macro_node(nn)
+            nn: LatexGroupNode = nodes[nix]
+            nix: int
+            cnodes: List[LatexCharsNode]
             nix, cnodes = get_char_nodes(nix + 2)
-            nn = nodes[nix]
-            if not isinstance(nn, LatexGroupNode):
-                nn = None
-            return NewCommand(mn, cnodes, nn)
-        elif isinstance(nn, LatexMacroNode):
+            bn = nodes[nix]
+            if not isinstance(bn, LatexGroupNode):
+                bn = None
+            nc = NewCommand(nn, mn, cnodes, bn, None)
+            post_create(nc)
+            return nc
+        elif False and isinstance(nn, LatexMacroNode):  # later if needed
             # newcommand that use more traditional TeX syntax
             bn: LatexNode = nodes[nix + 2]
             if not isinstance(bn, LatexGroupNode):
                 bn = None
-            return NewCommand(nn, (), bn)
+            nc = NewCommand(nn, nn, (), bn, None)
+            post_create(nc)
+            return nc
         else:
             # strange syntax commands are in the minority
             if logger.isEnabledFor(logging.INFO):
                 s: str = f'{n.latex_verbatim()}{nn.latex_verbatim()} at {n.pos}'
                 logger.info(f'Un-parsable macro: {s} in {self.path}')
 
-    @persisted('_package_commands')
-    def _get_package_commands(self) -> Dict[str, UsePackage]:
+    @persisted('_package_objects')
+    def _get_package_objects(self) -> \
+            Tuple[Dict[str, UsePackage], Dict[str, NewCommand]]:
         """Parse ``usepackage`` and ``newcommand``."""
         ups: Dict[str, UsePackage] = {}
         ncs: Dict[str, NewCommand] = {}
@@ -165,7 +182,7 @@ class LatexFile(LatexObject):
                             logger.info(f"replacing previously <{prev}> <{up}>")
                     ups[up.name] = up
                 elif n.macroname.endswith('command'):
-                    cmd = self._parse_command(n, nodes, nix)
+                    cmd: NewCommand = self._parse_command(n, nodes, nix)
                     if cmd is not None:
                         ncs[cmd.name] = cmd
         return frozendict(ups), frozendict(ncs)
@@ -173,12 +190,12 @@ class LatexFile(LatexObject):
     @property
     def usepackages(self) -> Dict[str, UsePackage]:
         """Get the ``usepackage`` declarations in the file."""
-        return self._get_package_commands()[0]
+        return self._get_package_objects()[0]
 
     @property
     def newcommands(self) -> Dict[str, NewCommand]:
         """Get the ``usepackage`` declarations in the file."""
-        return self._get_package_commands()[1]
+        return self._get_package_objects()[1]
 
     @property
     def failures(self) -> Tuple[Failure, ...]:
@@ -215,14 +232,19 @@ class NewCommandLocation(LatexObject):
     command: NewCommand = field()
     """The command foiund in :obj:`file`."""
 
-    latex_file: LatexFile = field()
+    file: LatexFile = field()
     """The file that contains :obj:`command`."""
+
+    def write(self, depth: int = 0, writer: TextIOBase = sys.stdout):
+        self._write_line('command:', depth, writer)
+        self._write_object(self.command, depth + 1, writer)
+        self._write_line(f'file: {self.file.path}', depth, writer)
 
     def __str__(self) -> str:
         return f'{self.command}: {self.file}'
 
     def __repr__(self) -> str:
-        return f'{repr(self.command)} in {repr(self.latex_file)}'
+        return f'{repr(self.command)} in {repr(self.file)}'
 
 
 @dataclass
@@ -251,7 +273,7 @@ class LatexDependency(LatexObject):
             return chain.from_iterable(((self.source,), children))
 
     @property
-    @persisted('_base_dir')
+    @persisted('_base_dir', transient=True)
     def base_dir(self) -> Path:
         if isinstance(self.source, str):
             return None
@@ -270,7 +292,7 @@ class LatexDependency(LatexObject):
             return base
 
     @property
-    @persisted('_orphans')
+    @persisted('_orphans', transient=True)
     def orphans(self) -> Tuple[str, ...]:
         """The target Latex packages that were imported by not found.  This will
         typically include installed base packages (i.e. ``hyperref``).
@@ -348,7 +370,9 @@ class LatexProject(LatexObject, Primeable):
 
     """
     _DICTABLE_WRITABLE_DESCENDANTS: ClassVar[bool] = True
-    _DICTABLE_ATTRIBUTES = {'dependencies', 'command_locations_by_name'}
+    _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {
+        'dependencies', 'command_locations_by_name'}
+    _PERSITABLE_PROPERTIES: ClassVar[Set[str]] = {'dependencies'}
 
     files: Tuple[Union[LatexFile, Path], ...] = field()
     """The files to parse or those that have already been parsed.  These are all
@@ -362,13 +386,13 @@ class LatexProject(LatexObject, Primeable):
             self.files))
 
     @property
-    @persisted('_files_by_name')
+    @persisted('_files_by_name', transient=True)
     def files_by_name(self) -> Dict[str, LatexFile]:
         """The files as key names and :obj:`LatexFile` instances as values."""
         return frozendict(map(lambda f: (f.name, f), self.files))
 
     @property
-    @persisted('_command_locations_by_name')
+    @persisted('_command_locations_by_name', transient=True)
     def command_locations_by_name(self) -> Dict[str, NewCommandLocation]:
         """All commands across all Latex files by command name."""
         cmds: Dict[str, NewCommand] = {}
@@ -380,7 +404,7 @@ class LatexProject(LatexObject, Primeable):
         return frozendict(cmds)
 
     @property
-    @persisted('_command_locations')
+    @persisted('_command_locations', transient=True)
     def command_locations(self) -> Tuple[NewCommandLocation, ...]:
         """All commands across all Latex files."""
         return tuple(sorted(self.command_locations_by_name.values(),
@@ -424,7 +448,7 @@ class LatexProject(LatexObject, Primeable):
         return LatexDependency('root', frozendict(deps))
 
     @property
-    @persisted('_dependency_files')
+    @persisted('_dependency_files', transient=True)
     def dependency_files(self) -> Tuple[LatexFile, ...]:
         """The parsed latex files in the project."""
         return tuple(map(lambda n: self.files_by_name[n],
@@ -447,7 +471,7 @@ class LatexProject(LatexObject, Primeable):
                                 writer: TextIOBase = sys.stdout):
         for cl in self.command_locations:
             self._write_line(f'{cl.command.name}', depth, writer)
-            cl.write(depth + 1, writer)
+            self._write_object(cl, depth + 1, writer)
 
 
 @dataclass

@@ -4,23 +4,30 @@
         "root.tex": {
             "source": {
                 "path": "test-resources/proj/root.tex",
-                "newcommands": {
-                    "rootcmd": {
-                        "body": "{Root command: #1}",
-                        "name": "rootcmd",
-                        "text": "\\rootcmd[1]{Root command: #1}",
-                        "arg_spec": "[1]",
-                        "char_offset": 90
-                    }
-                },
                 "usepackages": {
                     "child": {
                         "name": "child",
-                        "char_offset": 16
+                        "span": [
+                            16,
+                            34
+                        ]
                     },
                     "orphan": {
                         "name": "orphan",
-                        "char_offset": 46
+                        "span": [
+                            46,
+                            65
+                        ]
+                    }
+                },
+                "newcommands": {
+                    "rootcmd": {
+                        "definition": "\\newcommand{\\rootcmd}[1]{Root command: #1}",
+                        "name": "rootcmd",
+                        "span": [
+                            78,
+                            120
+                        ]
                     }
                 }
             },
@@ -28,16 +35,17 @@
                 "child.sty": {
                     "source": {
                         "path": "test-resources/proj/child.sty",
+                        "usepackages": {},
                         "newcommands": {
                             "childcmd": {
-                                "body": "{Child command: #1 and #2}",
+                                "definition": "\\newcommand{\\childcmd}[2]{Child command: #1 and #2}",
                                 "name": "childcmd",
-                                "text": "\\childcmd[2]{Child command: #1 and #2}",
-                                "arg_spec": "[2]",
-                                "char_offset": 26
+                                "span": [
+                                    14,
+                                    65
+                                ]
                             }
-                        },
-                        "usepackages": {}
+                        }
                     },
                     "targets": {}
                 },
@@ -47,16 +55,17 @@
         "child.sty": {
             "source": {
                 "path": "test-resources/proj/child.sty",
+                "usepackages": {},
                 "newcommands": {
                     "childcmd": {
-                        "body": "{Child command: #1 and #2}",
+                        "definition": "\\newcommand{\\childcmd}[2]{Child command: #1 and #2}",
                         "name": "childcmd",
-                        "text": "\\childcmd[2]{Child command: #1 and #2}",
-                        "arg_spec": "[2]",
-                        "char_offset": 26
+                        "span": [
+                            14,
+                            65
+                        ]
                     }
-                },
-                "usepackages": {}
+                }
             },
             "targets": {}
         }

@@ -52,7 +52,7 @@ class TestApplication(unittest.TestCase):
                          set(root.source.usepackages.keys()))
 
         child_pkg: UsePackage = root.source.usepackages['child']
-        self.assertEqual(16, child_pkg.char_offset)
+        self.assertEqual((16, 34), child_pkg.span)
 
         self.assertEqual(id(dep['child.sty']), id(root['child.sty']))
 
