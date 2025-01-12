@@ -208,6 +208,24 @@ class LatexFile(PersistableContainer, Dictable):
 
 
 @dataclass
+class NewCommandLocation(Dictable):
+    """A pairing of commands and the files they live in.
+
+    """
+    command: NewCommand = field()
+    """The command foiund in :obj:`file`."""
+
+    file: LatexFile = field()
+    """The file that contains :obj:`command`."""
+
+    def __str__(self) -> str:
+        return f'{self.command}: {self.file}'
+
+    def __repr__(self) -> str:
+        return f'{repr(self.command)} in {repr(self.file)}'
+
+
+@dataclass
 class LatexDependency(Dictable):
     """An import relationship given by Latex ``usepackage``.
 
@@ -330,7 +348,7 @@ class LatexProject(PersistableContainer, Dictable, Primeable):
 
     """
     _DICTABLE_WRITABLE_DESCENDANTS: ClassVar[bool] = True
-    _DICTABLE_ATTRIBUTES = {'dependencies'}
+    _DICTABLE_ATTRIBUTES = {'dependencies', 'command_locations_by_name'}
 
     files: Tuple[Union[LatexFile, Path], ...] = field()
     """The files to parse or those that have already been parsed.  These are all
@@ -348,6 +366,25 @@ class LatexProject(PersistableContainer, Dictable, Primeable):
     def files_by_name(self) -> Dict[str, LatexFile]:
         """The files as key names and :obj:`LatexFile` instances as values."""
         return frozendict(map(lambda f: (f.name, f), self.files))
+
+    @property
+    @persisted('_command_locations_by_name')
+    def command_locations_by_name(self) -> Dict[str, NewCommandLocation]:
+        """All commands across all Latex files by command name."""
+        cmds: Dict[str, NewCommand] = {}
+        latfile: LatexFile
+        for latfile in self.files_by_name.values():
+            cmd: NewCommand
+            for cmd in latfile.newcommands.values():
+                cmds[cmd.name] = NewCommandLocation(cmd, latfile)
+        return frozendict(cmds)
+
+    @property
+    @persisted('_command_locations')
+    def command_locations(self) -> Tuple[NewCommandLocation, ...]:
+        """All commands across all Latex files."""
+        return tuple(sorted(self.command_locations_by_name.values(),
+                            key=lambda cl: cl.command.name))
 
     def _get_dependencies(self, src: LatexFile, deps) -> \
             Dict[str, Dict[str, Any]]:
@@ -405,6 +442,12 @@ class LatexProject(PersistableContainer, Dictable, Primeable):
         for lf in sorted(files, key=lambda t: t.path.name):
             self._write_line(f'{lf.path}:', depth, writer)
             lf.write(depth + 1, writer, include_path=False)
+
+    def write_command_locations(self, depth: int = 0,
+                                writer: TextIOBase = sys.stdout):
+        for cl in self.command_locations:
+            self._write_line(f'{cl.command.name}', depth, writer)
+            cl.write(depth + 1, writer)
 
 
 @dataclass

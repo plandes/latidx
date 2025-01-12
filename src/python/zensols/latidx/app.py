@@ -12,7 +12,7 @@ import json
 import yaml
 from pathlib import Path
 from zensols.cli import LogConfigurator, ApplicationError
-from . import LatexDependency, LatexIndexer
+from . import NewCommand, LatexDependency, LatexProject, LatexIndexer, LatexFile
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,8 @@ class Application(object):
 
         """
         self._set_level(logging.WARNING)
-        proj = self.indexer.create_project(self._to_paths(tex_path))
+        proj: LatexProject = self.indexer.create_project(
+            self._to_paths(tex_path))
         dep: LatexDependency = proj.dependencies
         if source is not None:
             source = self._resolve_source(dep, source)
@@ -116,15 +117,43 @@ class Application(object):
             return files
 
         self._set_level(logging.WARNING)
-        proj = self.indexer.create_project(self._to_paths(tex_path))
+        proj: LatexProject = self.indexer.create_project(
+            self._to_paths(tex_path))
         if output_format == _Format.txt:
             proj.write_files()
         if output_format == _Format.json:
             print(json.dumps(files_by_name(), indent=4))
         if output_format == _Format.yaml:
-            print(yaml.dump(files_by_name()))
+            print(yaml.dump(files_by_name()).rstrip())
         if output_format == _Format.list:
             print('\n'.join(map(lambda f: str(f.path), proj.files)))
+
+    def dump_commands(self, tex_path: str,
+                      output_format: _Format = _Format.txt):
+        """List commands.
+
+        :param tex_path: a path separated (':' on Linux) list of files or
+                         directories
+
+        :param output_format: the output format
+
+        """
+        def commands_by_name():
+            return proj.asflatdict()['command_locations_by_name']
+
+        self._set_level(logging.WARNING)
+        proj: LatexProject = self.indexer.create_project(
+            self._to_paths(tex_path))
+        if output_format == _Format.txt:
+            proj.write_command_locations()
+        if output_format == _Format.json:
+            print(json.dumps(commands_by_name(), indent=4))
+        if output_format == _Format.yaml:
+            print(yaml.dump(commands_by_name()).rstrip())
+        if output_format == _Format.list:
+            print('\n'.join(map(
+                lambda c: str(c.command.name),
+                proj.command_locations)))
 
 
 @dataclass
@@ -133,9 +162,7 @@ class PrototypeApplication(object):
 
     app: Application = field()
 
-    def proto(self):
-        """Prototype test."""
-        from . import NewCommand, LatexFile, LatexProject, LatexIndexer
+    def _test_iterate_proj(self):
         indexer: LatexIndexer = self.app.indexer
         proj: LatexProject = indexer.create_project(
             (Path('test-resources/proj'),))
@@ -144,3 +171,7 @@ class PrototypeApplication(object):
             cmd: NewCommand
             for cmd in latfile.newcommands.values():
                 print(f'{repr(cmd)} in {latfile}')
+
+    def proto(self):
+        """Prototype test."""
+        self._test_iterate_proj()
