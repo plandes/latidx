@@ -186,9 +186,10 @@ class PrototypeApplication(object):
             (Path('test-resources/proj'),))
         latfile: LatexFile = proj.files_by_name['root.tex']
         cmd: NewCommand = latfile.newcommands['rootcmd']
+        print(latfile.content)
         cmd.write()
 
-    def proto(self, run: int = 3):
+    def proto(self, run: int = 1):
         """Prototype test."""
         {0: self._test_iterate_proj,
          1: self._test_command,
