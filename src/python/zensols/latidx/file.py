@@ -116,6 +116,19 @@ class LatexFile(LatexSpannedObject):
                 nix += 1
             return nix, cnodes
 
+        def get_comment_nodes():
+            cnodes: List[LatexCommentNode] = []
+            cnix: int = nix - 1
+            while cnix > 0:
+                cn: LatexNode = nodes[cnix]
+                if isinstance(cn, LatexCommentNode):
+                    cnodes.append(cn)
+                else:
+                    break
+                cnix -= 1
+            cnodes.reverse()
+            return cnodes
+
         nlen: int = len(nodes)
         nn: LatexNode = nodes[nix + 1]
         if isinstance(nn, LatexGroupNode):
@@ -123,15 +136,16 @@ class LatexFile(LatexSpannedObject):
             # of the arglist; only comments are supported for these nodes
             mn: LatexMacroNode = get_macro_node(nn)
             nn: LatexGroupNode = nodes[nix]
-            nix: int
+            bnix: int
             cnodes: List[LatexCharsNode]
-            nix, cnodes = get_char_nodes(nix + 2)
-            bn = nodes[nix]
+            bnix, cnodes = get_char_nodes(nix + 2)
+            bn: LatexGroupNode = nodes[bnix]
             if not isinstance(bn, LatexGroupNode):
                 bn = None
-            nc = NewCommand(nn, mn, cnodes, bn, None)
+            nc = NewCommand(nn, mn, cnodes, bn, None, None)
             span: Tuple[int, int] = nc.span
             nc.definition = self.content[span[0]:span[1]]
+            nc.comment_nodes = get_comment_nodes()
             return nc
         else:
             # strange syntax commands are in the minority

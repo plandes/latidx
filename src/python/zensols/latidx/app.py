@@ -186,15 +186,14 @@ class PrototypeApplication(object):
             (Path('test-resources/proj'),))
         latfile: LatexFile = proj.files_by_name['root.tex']
         cmd: NewCommand = latfile.newcommands['rootcmd']
-        print(latfile.content)
         cmd.write()
 
-    def proto(self, run: int = 2):
+    def proto(self, run: int = 3):
         """Prototype test."""
         {0: self._test_iterate_proj,
          1: self._test_command,
          2: lambda: self.app.dump_files(
              Path('test-resources/proj'), _Format.json),
          3: lambda: self.app.dump_commands(
-             Path('test-resources/proj'), _Format.json),
+             Path('test-resources/proj'), _Format.txt),
          }[run]()

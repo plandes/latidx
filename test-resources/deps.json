@@ -4,30 +4,31 @@
         "root.tex": {
             "source": {
                 "path": "test-resources/proj/root.tex",
-                "newcommands": {
-                    "rootcmd": {
-                        "definition": "\\newcommand{\\rootcmd}[1]{Root command: #1}",
-                        "name": "rootcmd",
-                        "span": [
-                            78,
-                            120
-                        ]
-                    }
-                },
                 "usepackages": {
                     "child": {
-                        "name": "child",
                         "span": [
                             16,
                             34
-                        ]
+                        ],
+                        "name": "child"
                     },
                     "orphan": {
-                        "name": "orphan",
                         "span": [
                             46,
                             65
-                        ]
+                        ],
+                        "name": "orphan"
+                    }
+                },
+                "newcommands": {
+                    "rootcmd": {
+                        "definition": "\\newcommand{\\rootcmd}[1]{Root command: #1}",
+                        "span": [
+                            107,
+                            149
+                        ],
+                        "name": "rootcmd",
+                        "comment": "commands\nusage: \\rootcmd{some text}"
                     }
                 }
             },
@@ -35,17 +36,18 @@
                 "child.sty": {
                     "source": {
                         "path": "test-resources/proj/child.sty",
+                        "usepackages": {},
                         "newcommands": {
                             "childcmd": {
                                 "definition": "\\newcommand{\\childcmd}[2]{Child command: #1 and #2}",
-                                "name": "childcmd",
                                 "span": [
                                     14,
                                     65
-                                ]
+                                ],
+                                "name": "childcmd",
+                                "comment": ""
                             }
-                        },
-                        "usepackages": {}
+                        }
                     },
                     "targets": {}
                 },
@@ -55,17 +57,18 @@
         "child.sty": {
             "source": {
                 "path": "test-resources/proj/child.sty",
+                "usepackages": {},
                 "newcommands": {
                     "childcmd": {
                         "definition": "\\newcommand{\\childcmd}[2]{Child command: #1 and #2}",
-                        "name": "childcmd",
                         "span": [
                             14,
                             65
-                        ]
+                        ],
+                        "name": "childcmd",
+                        "comment": ""
                     }
-                },
-                "usepackages": {}
+                }
             },
             "targets": {}
         }

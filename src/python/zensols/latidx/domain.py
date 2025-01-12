@@ -3,15 +3,15 @@
 """
 __author__ = 'Paul Landes'
 
-from typing import Tuple, Set, Dict, Any, Optional, ClassVar
+from typing import Tuple, Set, Dict, Any, ClassVar
 from dataclasses import dataclass, field
 from abc import ABCMeta, abstractmethod
 import sys
 from pathlib import Path
-from io import TextIOBase
+from io import TextIOBase, StringIO
 import textwrap as tw
 from pylatexenc.latexwalker import (
-    LatexNode, LatexMacroNode, LatexCharsNode, LatexGroupNode
+    LatexNode, LatexMacroNode, LatexCharsNode, LatexGroupNode, LatexCommentNode
 )
 from zensols.util import APIError
 from zensols.config import Dictable
@@ -108,7 +108,7 @@ class NewCommand(LatexSpannedObject):
     """A parsed macro definition using ``\\{provide,new,renew}command``.
 
     """
-    _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {'name', 'span'}
+    _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {'name', 'span', 'comment'}
 
     newcommand_node: LatexMacroNode = field(repr=False)
     """The ``\\newcommand`` node."""
@@ -121,6 +121,9 @@ class NewCommand(LatexSpannedObject):
 
     body_node: LatexGroupNode = field(repr=False)
     """The node with the name of the package to be imported."""
+
+    comment_nodes: Tuple[LatexCommentNode, ...] = field(repr=False)
+    """Any comment nodes that preceeded the ``newcommand`` statement."""
 
     definition: str = field()
     """The string definition of the command."""
@@ -140,13 +143,25 @@ class NewCommand(LatexSpannedObject):
         return ''.join(map(lambda n: n.latex_verbatim(), self.arg_spec_nodes))
 
     @property
-    def body(self) -> Optional[str]:
+    def body(self) -> str:
         """The body of the macro definition."""
         return self.body_node.latex_verbatim()
+
+    @property
+    @persisted('_comment', transient=True)
+    def comment(self) -> str:
+        """The concatenated text from the parsed :obj:`comment_nodes`."""
+        sio = StringIO()
+        node: LatexCommentNode
+        for node in self.comment_nodes:
+            sio.write(node.comment.strip())
+            sio.write(node.comment_post_space)
+        return sio.getvalue().rstrip()
 
     def write(self, depth: int = 0, writer: TextIOBase = sys.stdout):
         dct: Dict[str, Any] = self.asdict()
         dct['span'] = str(self.span)
+        dct['comment'] = '<' + self.comment.replace('\n', '\\n') + '>'
         self._write_dict(dct, depth, writer)
 
     def __repr__(self) -> str:
