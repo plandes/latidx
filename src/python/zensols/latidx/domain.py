@@ -5,6 +5,7 @@ __author__ = 'Paul Landes'
 
 from typing import Tuple, Set, Dict, Any, Optional, ClassVar
 from dataclasses import dataclass, field
+from abc import ABCMeta, abstractmethod
 import sys
 from pathlib import Path
 from io import TextIOBase
@@ -35,17 +36,50 @@ class ParseError(LatidxError):
 
 @dataclass
 class LatexObject(PersistableContainer, Dictable):
+    """Any Latex data structure that is parsed, or composed of, parsed Latex.
+
+    """
     def __post_init__(self):
         super().__init__()
 
 
 @dataclass
-class UsePackage(LatexObject):
-    """A parsed use of a Latex ``\\usepackage{<name>}``.
+class LatexSpannedObject(LatexObject, metaclass=ABCMeta):
+    """Any Latex data structure that is parsed text from a Latex file.
 
     """
     _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {'name', 'span'}
 
+    @abstractmethod
+    def _get_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def _get_span(self) -> Tuple[int, int]:
+        pass
+
+    @property
+    def name(self) -> str:
+        """The name of the object or text that makes it unique."""
+        return self._get_name()
+
+    @property
+    def span(self) -> int:
+        """The absolute 0-index character offset of the Latex statement."""
+        return self._get_span()
+
+    def __str__(self) -> str:
+        return f'{self.name} @ {self.span}'
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+@dataclass
+class UsePackage(LatexSpannedObject):
+    """A parsed use of a Latex ``\\usepackage{<name>}``.
+
+    """
     macro_node: LatexMacroNode = field(repr=False)
     """The node containing the macro."""
 
@@ -55,20 +89,13 @@ class UsePackage(LatexObject):
     name_node: LatexCharsNode = field(repr=False)
     """The node with the name of the package to be imported."""
 
-    @property
-    def name(self) -> str:
-        """The package to *use* (import)."""
+    def _get_name(self) -> str:
         return self.name_node.chars
 
-    @property
-    def span(self) -> int:
-        """The absolute 0-index character offset of the usepackage statement."""
+    def _get_span(self) -> Tuple[int, int]:
         beg: int = self.macro_node.pos
         end: int = self.name_node.pos + self.name_node.len + 1
         return (beg, end)
-
-    def __str__(self) -> str:
-        return f'{self.name} @ {self.span}'
 
     def __repr__(self) -> str:
         opts: str = '' if self.options_node is None else self.options_node.chars
@@ -77,7 +104,7 @@ class UsePackage(LatexObject):
 
 
 @dataclass
-class NewCommand(LatexObject):
+class NewCommand(LatexSpannedObject):
     """A parsed macro definition using ``\\{provide,new,renew}command``.
 
     """
@@ -98,14 +125,10 @@ class NewCommand(LatexObject):
     definition: str = field()
     """The string definition of the command."""
 
-    @property
-    def name(self) -> str:
-        """The name of the new macro defined."""
+    def _get_name(self) -> str:
         return self.macro_node.macroname
 
-    @property
-    def span(self) -> Tuple[int, int]:
-        """Get the 0-index character offset span of the definition."""
+    def _get_span(self) -> Tuple[int, int]:
         begin: int = self.newcommand_node.pos
         end: int = self.body_node.pos + self.body_node.len
         return (begin, end)
@@ -119,16 +142,12 @@ class NewCommand(LatexObject):
     @property
     def body(self) -> Optional[str]:
         """The body of the macro definition."""
-        if self.body_node is not None:
-            return self.body_node.latex_verbatim()
+        return self.body_node.latex_verbatim()
 
     def write(self, depth: int = 0, writer: TextIOBase = sys.stdout):
         dct: Dict[str, Any] = self.asdict()
         dct['span'] = str(self.span)
         self._write_dict(dct, depth, writer)
-
-    def __str__(self) -> str:
-        return f'{self.name} @ {self.span}'
 
     def __repr__(self) -> str:
         body: str = self.body

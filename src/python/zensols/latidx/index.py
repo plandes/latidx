@@ -20,15 +20,18 @@ from pylatexenc.latexwalker import (
 )
 from pylatexenc.macrospec import LatexContextDb
 from zensols.config import Dictable
-from zensols.persist import persisted, Primeable
+from zensols.persist import persisted, Primeable, PersistableContainer
 from zensols.util import Failure
-from . import LatidxError, LatexObject, ParseError, UsePackage, NewCommand
+from . import (
+    LatidxError, LatexObject, LatexSpannedObject, ParseError,
+    UsePackage, NewCommand
+)
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class LatexFile(LatexObject):
+class LatexFile(LatexSpannedObject):
     """A Latex file (``.tex``, ``.sty``, etc) with parsed artifacts.
 
     """
@@ -43,10 +46,11 @@ class LatexFile(LatexObject):
         super().__post_init__()
         self._fails: List[Failure] = []
 
-    @property
-    def name(self) -> str:
-        """The base name of :obj:`path`."""
+    def _get_name(self) -> str:
         return self.path.name
+
+    def _get_span(self) -> Tuple[int, int]:
+        return (0, len(self.content))
 
     @property
     @persisted('_content')
@@ -210,7 +214,7 @@ class LatexFile(LatexObject):
 
 
 @dataclass
-class NewCommandLocation(LatexObject):
+class NewCommandLocation(LatexSpannedObject):
     """A pairing of commands and the files they live in.
 
     """
@@ -219,6 +223,12 @@ class NewCommandLocation(LatexObject):
 
     file: LatexFile = field()
     """The file that contains :obj:`command`."""
+
+    def _get_name(self) -> str:
+        return self.command._get_name()
+
+    def _get_span(self) -> Tuple[int, int]:
+        return self.command._get_span()
 
     def write(self, depth: int = 0, writer: TextIOBase = sys.stdout):
         self._write_line('command:', depth, writer)
@@ -409,6 +419,7 @@ class LatexProject(LatexObject, Primeable):
             dep = LatexDependency(src, src_deps)
             deps[src.name] = dep
             files: Dict[str, LatexFile] = self.files_by_name
+            targ_up: UsePackage
             for targ_up in tuple(src.usepackages.values()):
                 targ_sty: str = targ_up.name + '.sty'
                 targ: Optional[LatexFile] = files.get(targ_sty)
