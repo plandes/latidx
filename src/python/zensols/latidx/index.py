@@ -122,10 +122,6 @@ class LatexFile(LatexObject):
 
         nlen: int = len(nodes)
         nn: LatexNode = nodes[nix + 1]
-        if 0:
-            for x in nodes:
-                print(x)
-            print('_' * 40)
         if isinstance(nn, LatexGroupNode):
             # most cases start with a group node that has the macro in the first
             # of the arglist; only comments are supported for these nodes
