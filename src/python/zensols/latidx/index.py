@@ -22,13 +22,13 @@ from pylatexenc.macrospec import LatexContextDb
 from zensols.config import Dictable
 from zensols.persist import PersistableContainer, persisted, Primeable
 from zensols.util import Failure
-from . import LatidxError, ParseError, UsePackage, NewCommand
+from . import LatidxError, LatexObject, ParseError, UsePackage, NewCommand
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class LatexFile(PersistableContainer, Dictable):
+class LatexFile(LatexObject):
     """A Latex file (``.tex``, ``.sty``, etc) with parsed artifacts.
 
     """
@@ -39,7 +39,7 @@ class LatexFile(PersistableContainer, Dictable):
     """The parsed latex ``.tex`` or ``.sty`` file."""
 
     def __post_init__(self):
-        super().__init__()
+        super().__post_init__()
         self._fails: List[Failure] = []
 
     @property
@@ -208,25 +208,25 @@ class LatexFile(PersistableContainer, Dictable):
 
 
 @dataclass
-class NewCommandLocation(Dictable):
+class NewCommandLocation(LatexObject):
     """A pairing of commands and the files they live in.
 
     """
     command: NewCommand = field()
     """The command foiund in :obj:`file`."""
 
-    file: LatexFile = field()
+    latex_file: LatexFile = field()
     """The file that contains :obj:`command`."""
 
     def __str__(self) -> str:
         return f'{self.command}: {self.file}'
 
     def __repr__(self) -> str:
-        return f'{repr(self.command)} in {repr(self.file)}'
+        return f'{repr(self.command)} in {repr(self.latex_file)}'
 
 
 @dataclass
-class LatexDependency(Dictable):
+class LatexDependency(LatexObject):
     """An import relationship given by Latex ``usepackage``.
 
     """
@@ -342,7 +342,7 @@ class LatexDependency(Dictable):
 
 
 @dataclass
-class LatexProject(PersistableContainer, Dictable, Primeable):
+class LatexProject(LatexObject, Primeable):
     """A collection of dependencies of a set of files used in a LaTeX
     compliation process.
 
@@ -356,7 +356,7 @@ class LatexProject(PersistableContainer, Dictable, Primeable):
 
     """
     def __post_init__(self):
-        super().__init__()
+        super().__post_init__()
         self.files = tuple(map(
             lambda f: LatexFile(f) if isinstance(f, Path) else f,
             self.files))

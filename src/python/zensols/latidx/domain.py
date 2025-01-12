@@ -32,7 +32,13 @@ class ParseError(LatidxError):
 
 
 @dataclass
-class UsePackage(PersistableContainer, Dictable):
+class LatexObject(PersistableContainer, Dictable):
+    def __post_init__(self):
+        super().__init__()
+
+
+@dataclass
+class UsePackage(LatexObject):
     """A parsed use of a Latex ``\\usepackage{<name>}``.
 
     """
@@ -46,9 +52,6 @@ class UsePackage(PersistableContainer, Dictable):
 
     name_node: LatexCharsNode = field(repr=False)
     """The node with the name of the package to be imported."""
-
-    def __post_init__(self):
-        super().__init__()
 
     @property
     def name(self) -> str:
@@ -70,7 +73,7 @@ class UsePackage(PersistableContainer, Dictable):
 
 
 @dataclass
-class NewCommand(PersistableContainer, Dictable):
+class NewCommand(LatexObject):
     """A parsed macro definition using ``\\{provide,new,renew}command``.
 
     """
@@ -86,8 +89,12 @@ class NewCommand(PersistableContainer, Dictable):
     body_node: Optional[LatexGroupNode] = field(repr=False)
     """The node with the name of the package to be imported."""
 
-    def __post_init__(self):
-        super().__init__()
+    @property
+    def text(self) -> str:
+        """The original text of the macro, which synthesized for now."""
+        body: str = self.body
+        body = '' if body is None else body
+        return f'\\{self.name}{self.arg_spec}{body}'
 
     @property
     def name(self) -> str:
@@ -115,7 +122,5 @@ class NewCommand(PersistableContainer, Dictable):
         return f'{self.name} @ {self.char_offset}'
 
     def __repr__(self) -> str:
-        body: str = self.body
-        body = '' if body is None else body
-        s: str = f'\\{self.name}{self.arg_spec}{body}'.replace('\n', ' ')
+        s: str = self.text.replace('\n', ' ')
         return tw.shorten(s, 70) + f'@{self.char_offset}'

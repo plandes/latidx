@@ -11,6 +11,7 @@ import logging
 import json
 import yaml
 from pathlib import Path
+from zensols.util import APIError
 from zensols.cli import LogConfigurator, ApplicationError
 from . import NewCommand, LatexDependency, LatexProject, LatexIndexer, LatexFile
 
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 class _Format(Enum):
     txt = auto()
     json = auto()
-    yaml = auto()
+    yml = auto()
     list = auto()
 
 
@@ -121,12 +122,14 @@ class Application(object):
             self._to_paths(tex_path))
         if output_format == _Format.txt:
             proj.write_files()
-        if output_format == _Format.json:
+        elif output_format == _Format.json:
             print(json.dumps(files_by_name(), indent=4))
-        if output_format == _Format.yaml:
+        elif output_format == _Format.yml:
             print(yaml.dump(files_by_name()).rstrip())
-        if output_format == _Format.list:
+        elif output_format == _Format.list:
             print('\n'.join(map(lambda f: str(f.path), proj.files)))
+        else:
+            raise APIError(f'Unknown format: {output_format}')
 
     def dump_commands(self, tex_path: str,
                       output_format: _Format = _Format.txt):
@@ -139,21 +142,26 @@ class Application(object):
 
         """
         def commands_by_name():
-            return proj.asflatdict()['command_locations_by_name']
+            dct = proj.asflatdict()['command_locations_by_name']
+            for cmd in dct.values():
+                cmd['latex_file'] = cmd['latex_file']['path']
+            return dct
 
         self._set_level(logging.WARNING)
         proj: LatexProject = self.indexer.create_project(
             self._to_paths(tex_path))
         if output_format == _Format.txt:
             proj.write_command_locations()
-        if output_format == _Format.json:
+        elif output_format == _Format.json:
             print(json.dumps(commands_by_name(), indent=4))
-        if output_format == _Format.yaml:
+        elif output_format == _Format.yml:
             print(yaml.dump(commands_by_name()).rstrip())
-        if output_format == _Format.list:
+        elif output_format == _Format.list:
             print('\n'.join(map(
                 lambda c: str(c.command.name),
                 proj.command_locations)))
+        else:
+            raise APIError(f'Unknown format: {output_format}')
 
 
 @dataclass
@@ -172,6 +180,16 @@ class PrototypeApplication(object):
             for cmd in latfile.newcommands.values():
                 print(f'{repr(cmd)} in {latfile}')
 
+    def _test_command(self):
+        indexer: LatexIndexer = self.app.indexer
+        proj: LatexProject = indexer.create_project(
+            (Path('test-resources/proj'),))
+        latfile: LatexFile = proj.files_by_name['root.tex']
+        cmd: NewCommand = latfile.newcommands['rootcmd']
+        print(cmd.text)
+
     def proto(self):
         """Prototype test."""
-        self._test_iterate_proj()
+        #self._test_iterate_proj()
+        #self._test_command()
+        self.app.dump_commands(Path('test-resources/proj'), _Format.yml)
