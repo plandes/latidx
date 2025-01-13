@@ -218,5 +218,5 @@ class PrototypeApplication(object):
          3: lambda: self.app.dump_commands(
              Path('test-resources/proj'), _Format.txt),
          4: lambda: self.app.dump_commands(
-             Path('test-resources/proj'), _Format.json, 'rootcmdx'),
+             Path('test-resources/proj'), _Format.json, 'rootcmd'),
          }[run]()

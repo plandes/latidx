@@ -108,7 +108,8 @@ class NewCommand(LatexSpannedObject):
     """A parsed macro definition using ``\\{provide,new,renew}command``.
 
     """
-    _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = {'name', 'span', 'comment'}
+    _DICTABLE_ATTRIBUTES: ClassVar[Set[str]] = \
+        LatexSpannedObject._DICTABLE_ATTRIBUTES | {'macro_offset'}
 
     newcommand_node: LatexMacroNode = field(repr=False)
     """The ``\\newcommand`` node."""
@@ -135,6 +136,10 @@ class NewCommand(LatexSpannedObject):
         begin: int = self.newcommand_node.pos
         end: int = self.body_node.pos + self.body_node.len
         return (begin, end)
+
+    @property
+    def macro_offset(self) -> int:
+        return self.macro_node.pos
 
     @property
     @persisted('_arg_spec', transient=True)

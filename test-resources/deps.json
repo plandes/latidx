@@ -6,29 +6,29 @@
                 "path": "test-resources/proj/root.tex",
                 "usepackages": {
                     "child": {
+                        "name": "child",
                         "span": [
                             16,
                             34
-                        ],
-                        "name": "child"
+                        ]
                     },
                     "orphan": {
+                        "name": "orphan",
                         "span": [
                             46,
                             65
-                        ],
-                        "name": "orphan"
+                        ]
                     }
                 },
                 "newcommands": {
                     "rootcmd": {
                         "definition": "\\newcommand{\\rootcmd}[1]{Root command: #1}",
+                        "name": "rootcmd",
+                        "macro_offset": 119,
                         "span": [
                             107,
                             149
-                        ],
-                        "name": "rootcmd",
-                        "comment": "commands\nusage: \\rootcmd{some text}"
+                        ]
                     }
                 }
             },
@@ -40,12 +40,12 @@
                         "newcommands": {
                             "childcmd": {
                                 "definition": "\\newcommand{\\childcmd}[2]{Child command: #1 and #2}",
+                                "name": "childcmd",
+                                "macro_offset": 26,
                                 "span": [
                                     14,
                                     65
-                                ],
-                                "name": "childcmd",
-                                "comment": ""
+                                ]
                             }
                         }
                     },
@@ -61,12 +61,12 @@
                 "newcommands": {
                     "childcmd": {
                         "definition": "\\newcommand{\\childcmd}[2]{Child command: #1 and #2}",
+                        "name": "childcmd",
+                        "macro_offset": 26,
                         "span": [
                             14,
                             65
-                        ],
-                        "name": "childcmd",
-                        "comment": ""
+                        ]
                     }
                 }
             },
