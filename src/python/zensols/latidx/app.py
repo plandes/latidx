@@ -3,7 +3,7 @@
 """
 __author__ = 'Paul Landes'
 
-from typing import Iterable, Optional, Union
+from typing import List, Dict, Iterable, Any, Optional, Union
 from dataclasses import dataclass, field
 from enum import Enum, auto
 import os
@@ -132,7 +132,8 @@ class Application(object):
             raise APIError(f'Unknown format: {output_format}')
 
     def dump_commands(self, tex_path: str,
-                      output_format: _Format = _Format.txt):
+                      output_format: _Format = _Format.txt,
+                      name: str = None):
         """List commands.
 
         :param tex_path: a path separated (':' on Linux) list of files or
@@ -140,26 +141,46 @@ class Application(object):
 
         :param output_format: the output format
 
+        :param name: the command to output; defaults to all
+
         """
-        def commands_by_name():
-            dct = proj.asflatdict()['command_locations_by_name']
-            for cmd in dct.values():
+        def commands_by_name(cmd: NewCommand):
+            dct: Dict[str, Any]
+            flats: List[NewCommand]
+            if cmd is None:
+                dct = proj.asflatdict()['command_locations_by_name']
+                flats = dct.values()
+            else:
+                dct = cmd.asflatdict()
+                flats = [dct]
+            for cmd in flats:
                 cmd['file'] = cmd['file']['path']
             return dct
 
         self._set_level(logging.WARNING)
         proj: LatexProject = self.indexer.create_project(
             self._to_paths(tex_path))
+        cmd: NewCommand = None
+        if name is not None:
+            cmd = proj.command_locations_by_name.get(name)
+            if cmd is None:
+                raise ApplicationError(f'No command found: {name}')
         if output_format == _Format.txt:
-            proj.write_command_locations()
+            if cmd is None:
+                proj.write_command_locations()
+            else:
+                cmd.write()
         elif output_format == _Format.json:
-            print(json.dumps(commands_by_name(), indent=4))
+            print(json.dumps(commands_by_name(cmd), indent=4))
         elif output_format == _Format.yml:
-            print(yaml.dump(commands_by_name()).rstrip())
+            print(yaml.dump(commands_by_name(cmd)).rstrip())
         elif output_format == _Format.list:
-            print('\n'.join(map(
-                lambda c: str(c.command.name),
-                proj.command_locations)))
+            if cmd is None:
+                print('\n'.join(map(
+                    lambda c: str(c.command.name),
+                    proj.command_locations)))
+            else:
+                print(cmd.name)
         else:
             raise APIError(f'Unknown format: {output_format}')
 
@@ -188,7 +209,7 @@ class PrototypeApplication(object):
         cmd: NewCommand = latfile.newcommands['rootcmd']
         cmd.write()
 
-    def proto(self, run: int = 3):
+    def proto(self, run: int = 4):
         """Prototype test."""
         {0: self._test_iterate_proj,
          1: self._test_command,
@@ -196,4 +217,6 @@ class PrototypeApplication(object):
              Path('test-resources/proj'), _Format.json),
          3: lambda: self.app.dump_commands(
              Path('test-resources/proj'), _Format.txt),
+         4: lambda: self.app.dump_commands(
+             Path('test-resources/proj'), _Format.json, 'rootcmdx'),
          }[run]()
