@@ -102,7 +102,7 @@ class Application(object):
                     f'Format not supported: {output_format.name}')
 
     def dump_files(self, tex_path: str, output_format: _Format = _Format.txt):
-        """List dependencies.
+        """List files and their contents.
 
         :param tex_path: a path separated (':' on Linux) list of files or
                          directories
