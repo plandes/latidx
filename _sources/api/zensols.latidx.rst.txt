@@ -1,0 +1,53 @@
+zensols.latidx package
+======================
+
+Submodules
+----------
+
+zensols.latidx.app module
+-------------------------
+
+.. automodule:: zensols.latidx.app
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+zensols.latidx.cli module
+-------------------------
+
+.. automodule:: zensols.latidx.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+zensols.latidx.domain module
+----------------------------
+
+.. automodule:: zensols.latidx.domain
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+zensols.latidx.file module
+--------------------------
+
+.. automodule:: zensols.latidx.file
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+zensols.latidx.index module
+---------------------------
+
+.. automodule:: zensols.latidx.index
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: zensols.latidx
+   :members:
+   :undoc-members:
+   :show-inheritance:
