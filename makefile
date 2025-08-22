@@ -6,7 +6,7 @@
 #
 # type of project
 PROJ_TYPE =		python
-PROJ_MODULES =		git python-resources python-cli python-doc python-doc-deploy
+PROJ_MODULES =		python/doc python/package python/deploy
 
 
 ## Includes
