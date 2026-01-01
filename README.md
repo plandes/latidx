@@ -1,7 +1,7 @@
 # Parse and index LaTeX files
 
 [![PyPI][pypi-badge]][pypi-link]
-[![Python 3.11][python311-badge]][python311-link]
+[![Python 3.13][python313-badge]][python313-link]
 [![Build Status][build-badge]][build-link]
 
 This library parses and indexes includes and macros in latex files.  This
@@ -78,18 +78,25 @@ files:
 An extensive changelog is available [here](CHANGELOG.md).
 
 
+## Community
+
+Please star this repository and let me know how and where you use this API.
+[Contributions](CONTRIBUTING.md) as pull requests, feedback, and any input is
+welcome.
+
+
 ## License
 
 [MIT License](LICENSE.md)
 
-Copyright (c) 2024 - 2025 Paul Landes
+Copyright (c) 2024 - 2026 Paul Landes
 
 
 <!-- links -->
 [pypi]: https://pypi.org/project/zensols.latidx/
 [pypi-link]: https://pypi.python.org/pypi/zensols.latidx
 [pypi-badge]: https://img.shields.io/pypi/v/zensols.latidx.svg
-[python311-badge]: https://img.shields.io/badge/python-3.11-blue.svg
-[python311-link]: https://www.python.org/downloads/release/python-3110
+[python313-badge]: https://img.shields.io/badge/python-3.13-blue.svg
+[python313-link]: https://www.python.org/downloads/release/python-3130
 [build-badge]: https://github.com/plandes/latidx/workflows/CI/badge.svg
 [build-link]: https://github.com/plandes/latidx/actions
